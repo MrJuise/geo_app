@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Point, Message
 
+
 class PointCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Point
@@ -21,6 +22,7 @@ class PointCreateSerializer(serializers.ModelSerializer):
             )
         return value
 
+
 class MessageCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
@@ -31,6 +33,7 @@ class MessageCreateSerializer(serializers.ModelSerializer):
         if value is None:
             raise serializers.ValidationError("Point is required")
         return value
+
 
 class PointSearchParamsSerializer(serializers.Serializer):
     latitude = serializers.FloatField()
@@ -52,12 +55,10 @@ class PointSearchParamsSerializer(serializers.Serializer):
             raise serializers.ValidationError("radius must be > 0")
         return value
 
+
 class MessageReadSerializer(serializers.ModelSerializer):
     author_username = serializers.CharField(source='author.username', read_only=True)
 
     class Meta:
         model = Message
         fields = ('id', 'point', 'content', 'created_at', 'author_username')
-
-
-

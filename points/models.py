@@ -11,6 +11,7 @@ class Point(models.Model):
     def __str__(self):
         return f"Point: {self.id} User: {self.owner}"
 
+
 class Message(models.Model):
     point = models.ForeignKey(Point, on_delete=models.CASCADE, related_name='messages')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='messages')

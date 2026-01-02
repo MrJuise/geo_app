@@ -2,8 +2,10 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Point, Message
-from .serializers import PointCreateSerializer, MessageCreateSerializer, PointSearchParamsSerializer, MessageReadSerializer
+from .serializers import PointCreateSerializer, MessageCreateSerializer, PointSearchParamsSerializer, \
+    MessageReadSerializer
 import math
+
 
 class PointCreateAPIView(generics.CreateAPIView):
     queryset = Point.objects.all()
@@ -22,6 +24,7 @@ class MessageCreateAPIView(generics.CreateAPIView):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+
 def haversine_km(lat1, lon1, lat2, lon2):
     R = 6371.0
     phi1 = math.radians(lat1)
@@ -32,6 +35,7 @@ def haversine_km(lat1, lon1, lat2, lon2):
     a = math.sin(d_phi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(d_lam / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
+
 
 class PointSearchAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
@@ -66,6 +70,7 @@ class PointSearchAPIView(generics.GenericAPIView):
         data = PointCreateSerializer(result, many=True).data
         return Response(data)
 
+
 class MessageSearchAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = PointSearchParamsSerializer
@@ -79,7 +84,6 @@ class MessageSearchAPIView(generics.GenericAPIView):
         lon = params.validated_data["longitude"]
         radius_km = params.validated_data["radius"]
 
-
         lat_delta = radius_km / 111.0
         cos_lat = max(0.000001, abs(math.cos(math.radians(lat))))
         lon_delta = radius_km / (111.0 * cos_lat)
@@ -91,16 +95,13 @@ class MessageSearchAPIView(generics.GenericAPIView):
             longitude__lte=lon + lon_delta,
         )
 
-
         point_ids_in_radius = []
         for p in candidate_points:
             if haversine_km(lat, lon, p.latitude, p.longitude) <= radius_km:
                 point_ids_in_radius.append(p.id)
 
-
         if not point_ids_in_radius:
             return Response([])
-
 
         qs = (
             Message.objects
